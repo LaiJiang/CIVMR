@@ -2,9 +2,36 @@ Package: CIVMR
 Title: Constrained Instrumental Variables in Mendelian Randomization with Pleiotropy
 Version: 0.0.0.9000
 Authors@R: person("Lai", "Jiang", email = "jianglai1987@gmail.com", role = c("aut", "cre"))
-Description: In Mendelian randomization (MR),  genetic variants are used to construct instrumental variables that then enable inference about the causal relationship between a phenotype of interest and a response or disease outcome. However, valid MR inference requires several assumptions, including the assumption that the genetic variants only influence the response through the phenotype of interest.Pleiotropy occurs when a genetic variant has an effect on more than one different phenotypes, and therefore a pleiotropic genetic variant may be an invalid instrumental variable.Hence, a naive method for constructing an instrumental variables may lead to biased estimation of the association between the phenotype and the response. Here, we encode a new and intuitive method (Constrained Instrumental Variable method [CIV]) to construct valid instrumental variables and perform adjusted causal effect estimation when pleiotropic exists, focusing particularly on the situation where pleiotropic phenotypes have been measured.  Our approach is theoretically guaranteed to perform an automatic and valid selection of genetic variants when building the instrumental variable. We also provide details of the features of many existing methods, together with a comparison of their performance in a large series of simulations. CIV performs robustly across many different pleiotropic violations of the MR assumptions. 
-Depends: R (>= 3.3.2)
+Description: In Mendelian randomization (MR), genetic variants are used to
+    construct instrumental variables that then enable inference about the causal
+    relationship between a phenotype of interest and a response or disease outcome.
+    However, valid MR inference requires several assumptions, including the
+    assumption that the genetic variants only influence the response through the
+    phenotype of interest.Pleiotropy occurs when a genetic variant has an effect
+    on more than one different phenotypes, and therefore a pleiotropic genetic
+    variant may be an invalid instrumental variable.Hence, a naive method for
+    constructing an instrumental variables may lead to biased estimation of the
+    association between the phenotype and the response. Here, we encode a new and
+    intuitive method (Constrained Instrumental Variable method [CIV]) to construct
+    valid instrumental variables and perform adjusted causal effect estimation when
+    pleiotropic exists, focusing particularly on the situation where pleiotropic
+    phenotypes have been measured. Our approach is theoretically guaranteed to
+    perform an automatic and valid selection of genetic variants when building the
+    instrumental variable. We also provide details of the features of many existing
+    methods, together with a comparison of their performance in a large series of
+    simulations. CIV performs robustly across many different pleiotropic violations
+    of the MR assumptions
+Depends:
+    R (>= 3.0.0)
+Imports:
+    PMA,
+    plyr,
+    glmnet,
+    Matrix,
+    foreach,
+    caret,
+    ggplot2
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 5.0.1
