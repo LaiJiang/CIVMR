@@ -1,0 +1,30 @@
+﻿
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch master
+# Changes to be committed:
+#	new file:   .Rbuildignore
+#	modified:   .Rproj.user/67875F2C/pcs/files-pane.pper
+#	modified:   .Rproj.user/67875F2C/pcs/source-pane.pper
+#	modified:   .Rproj.user/67875F2C/pcs/windowlayoutstate.pper
+#	modified:   .Rproj.user/67875F2C/pcs/workbench-pane.pper
+#	new file:   .gitignore
+#	modified:   CIVMR.Rproj
+#	modified:   DESCRIPTION
+#	modified:   NAMESPACE
+#	new file:   R/CIVMR_function.R
+#	deleted:    R/cat_function.R
+#	new file:   man/IV_reduction.Rd
+#	new file:   man/LA_decomposition.Rd
+#	new file:   man/SNP_reduction.Rd
+#	new file:   man/boot_CIV.Rd
+#	deleted:    man/cat_function.Rd
+#	new file:   man/cv_CIV.Rd
+#	new file:   man/pcc_IV.Rd
+#	new file:   man/rm_outlier_IV.Rd
+#	new file:   man/select_IV.Rd
+#	new file:   man/smooth_L0_lambda.Rd
+#	new file:   man/smooth_opt_IV.Rd
+#	new file:   man/solve_pcc.Rd
+#
+

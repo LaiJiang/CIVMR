@@ -1,12 +1,17 @@
 
-#' @title linear algebra decompositions for CIV
+#' @title linear algebra decompositions for CIV. (internal function.)
 #' @description This function implements linear algebra steps to acquire necessary matrices for CIV construction.
 #' @param G: original instruments with dimension nXp.
 #' @param X: phenotype of interest. dimension nXk.
 #' @param Z: possible pleiotropic phenotypes which have been measured. dimension nXr.
 #' @keywords Cholesky decomposition
 #' @return A list of matrices which will be called by solv_pcc() and pcc_IV().
+#' @examples
+#' data(simulation)
+#' LA_decomposition(simulation$G,simulation$X,simulation$Z)
 #' @export
+
+
 LA_decomposition <- function(G,X,Z){
 
   temp_cor <- cor(G)
@@ -50,13 +55,21 @@ LA_decomposition <- function(G,X,Z){
 
 
 
-#' @title Find a unique solution of CIV.
+#' @title Find a unique solution of CIV (internal use).
 #' @description This function find a unique solutin to the constrained instrument problem given matrix A and B.
 #' @param A: matrix given by LA_decomposition().
 #' @param B: matrix given by LA_decomposition().
 #' @keywords Cholesky decomposition
 #' @return c: solution to the constrained maximization problem.
 #' @return max_value: the maximized correlation value.
+#' @examples
+#' data(simulation)
+#' #CIV linear algebra decomposition components
+#' civ.deco <- LA_decomposition(simulation$G,simulation$X,simulation$Z)
+#' #solve the CIV solution \eqn{u}
+#' civ.c <- solve_pcc(civ.deco$A, civ.deco$B)
+#' #plot the weight c
+#' plot(civ.c$c)
 #' @export
 solve_pcc <- function(A,B){
 
@@ -86,12 +99,18 @@ solve_pcc <- function(A,B){
 
 
 
-#' @title multiple orthogonal CIV solutions (if applicable)
-#' @description This function find multiple CIV solutions that are orthogonal to each other if called. Only the first one achive the maximum correlation.
+#' @title multiple orthogonal CIV solutions. (internal function)
+#' @description This function find multiple CIV solutions that are orthogonal to each other. Only the first one achive the global maximum correlation.
 #' @param A: matrix given by LA_decomposition().
 #' @param B: matrix given by LA_decomposition().
 #' @param G: original instruments.
 #' @return u_max: the solution of u that would maximize the constrained correlation problem.
+#' @examples
+#' data(simulation)
+#' #CIV linear algebra decomposition components
+#' civ.deco <- LA_decomposition(simulation$G,simulation$X,simulation$Z)
+#' #solve the CIV solution for c
+#' civ.mult <- pcc_IV(civ.deco$A, civ.deco$B, simulation$G, civ.deco$inv_GG_square)
 #' @export
 pcc_IV <- function(A,B,G, inv_GG_square,no_IV=ncol(G)-ncol(B)){
 
@@ -126,23 +145,60 @@ pcc_IV <- function(A,B,G, inv_GG_square,no_IV=ncol(G)-ncol(B)){
 }
 
 
-#' @title cross-validated CIV.
-#' @description This function generate a CIV using cross-validation.
-#'              Specifically, for a predefined fold the CIV is calculated using
-#'               all samples except this fold, then the CIV solution is applied to the samples in this
-#'               fold to obtain CIV instrumentable variable. In this way the correlation between samples
-#'               are expected to be reduced.
-#' @param temp_TSLS_data: a data frame containing G,X,Z,Y.
-#' @param n_folds: number of folds for cross-validation.
-#' @return civ.IV: cross-validated CIV instrument.
-#' @return beta_est: causal effect estimation of X on Y using civ.IV.
-#' @export
-cv_CIV <- function(temp_TSLS_data, n_folds = 10 ){
+#' @title Find a unique solution of CIV.
+#' @description This function find the unique CIV solution.
+#' @param MR.data: A data.frame() object containg G,X,Z,Y.
+#' @keywords LA_decomposition, solve_pcc.
+#' @return c: solution vector to the constrained maximization problem.
+#' @return max_value: the maximized correlation value.
+#' @return CIV: the new instrumentable variable for MR analysis: constrained instrumental variable.
 
-  G <- temp_TSLS_data$G
-  X <- temp_TSLS_data$X
-  Z <- temp_TSLS_data$Z
-  Y <- temp_TSLS_data$Y
+#' @examples
+#' data(simulation)
+#' civ.fit <- CIV(simulation)
+#' #plot the weight c
+#' plot(civ.fit$c)
+#' @export
+CIV <- function(MR.data){
+
+  civ.deco <- LA_decomposition(MR.data$G,MR.data$X,MR.data$Z)
+
+  solution <- solve_pcc(civ.deco$A, civ.deco$B)
+
+  c <- solution$c
+
+  new.G <- (MR.data$G) %*% c
+
+  list(c=c,max_value=solution$max_value, CIV=new.G)
+}
+
+
+
+#' @title cross-validated CIV.
+#' @description This function produce a Constrained Instrumental Variable with cross-validation.
+#'              Specifically, for a predefined fold the CIV is calculated using
+#'               all samples except this fold, then the CIV solution is applied to the samples  in this fold
+#'               to obtain corresponding CIV. In this way the correlation between samples
+#'               are expected to be reduced.
+#' @param MR.data: a data frame containing G,X,Z,Y.
+#' @param n_folds: number of folds for cross-validation.
+#' @return weights: A matrix with dimension \eqn{n_folds * p}. Each row is a CIV solution \eqn{c} from a specific fold.
+#' @return civ.IV: cross-validated CIV instrument \eqn{G^{*}=Gc}.
+#' @return beta_est: causal effect estimation of X on Y using CIV instrument civ.IV
+#' @examples
+#' data(simulation)
+#' cv.civ <- cv_CIV(simulation)
+#' #strong correlation between CIV solutions from different folds.
+#' cor(t(cv.civ$weights))
+#' @export
+cv_CIV <- function(MR.data, n_folds = 10 ){
+
+  G <- MR.data$G
+  X <- MR.data$X
+  Z <- MR.data$Z
+  Y <- MR.data$Y
+
+  if( length(ncol(X))==0 ) X <- matrix(X,ncol=1)
 
   n <- length(Y)
   p <- ncol(G)
@@ -203,10 +259,10 @@ cv_CIV <- function(temp_TSLS_data, n_folds = 10 ){
 
 
   #now we use the cross-validated CIV score to do causal effect estimation
-  new_TSLS_data <- temp_TSLS_data
-  new_TSLS_data$G <- civ_score
+  MR.data <- MR.data
+  MR.data$G <- civ_score
 
-  est_TSLS <- TSLS_IV(new_TSLS_data)
+  est_TSLS <- TSLS_IV(MR.data)
   beta_est <- est_TSLS$coef[-1]
 
 
@@ -214,23 +270,30 @@ cv_CIV <- function(temp_TSLS_data, n_folds = 10 ){
 }
 
 
-#' @title bootstrapped CIV.
+#' @title bootstrapped CIV (recommended).
 #' @description This function generate a bootstrapped CIV w/wo correction.
 #'              Specifically, for a bootstrap sample we can generate civ solution u. The boostrap corrected
 #'              solution u is obtained as the global solution u - ( bootrapped average u - global u).
-#' @param temp_TSLS_data: a data frame containing G,X,Z,Y.
+#' @param MR.data: a data frame containing G,X,Z,Y.
 #' @param n_boots: number of bootstrap samples.
 #' @return boots.u: bootstrapped CIV solution u (without correction).
-#' @return boots.cor.u: bootstrap corrected solution of u.
+#' @return boots.cor.u: bootstrap corrected solution of u. (suggested)
+#' @examples
+#' data(simulation)
+#' boot.civ <- boot_CIV(simulation)
+#' #plot the bootstrap corrected solution u.
+#' plot(boot.civ$boots.cor.u)
 #' @export
 
 
-boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
+boot_CIV <- function(MR.data, n_boots = 10 ){
 
-  X <- temp_TSLS_data$X
-  G <- temp_TSLS_data$G
-  Z <- temp_TSLS_data$Z
-  Y <- temp_TSLS_data$Y
+  X <- MR.data$X
+  G <- MR.data$G
+  Z <- MR.data$Z
+  Y <- MR.data$Y
+
+  if( length(ncol(X))==0 ) X <- matrix(X,ncol=1)
 
   n <- length(Y)
   p <- ncol(G)
@@ -249,11 +312,11 @@ boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
 
     #to avoid singularity
     cor_g <- cor(boot_G)
-    cor_z <- cor(boot_Z)
-    diag(cor_g) <- diag(cor_z) <- 0
+    #cor_z <- cor(boot_Z)
+    diag(cor_g) <- 0
 
     #we keep re-sampling if the previous sampled Gs are highly correlated
-    while( (is.na(max(cor_g))==1)||(max(abs(cor_g))>0.999)||(max(abs(cor_z))>0.999) ){
+    while( (is.na(max(cor_g))==1)||(max(abs(cor_g))>0.999) ){
 
       obs_id <- sample(1:n, size=n, replace=TRUE)
 
@@ -263,8 +326,8 @@ boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
       boot_Y <- Y[obs_id]
 
       cor_g <- cor(boot_G)
-      cor_z <- cor(boot_Z)
-      diag(cor_g) <- diag(cor_z) <- 0
+      #cor_z <- cor(boot_Z)
+      diag(cor_g) <- 0
     }
 
     boot_MR.data <- data.frame(Y = boot_Y,
@@ -286,8 +349,8 @@ boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
   }
 
 
-  deco <- LA_decomposition(temp_TSLS_data$G,temp_TSLS_data$X,temp_TSLS_data$Z)
-  pcc_iv <- pcc_IV(deco$A,deco$B,temp_TSLS_data$G,
+  deco <- LA_decomposition(MR.data$G,MR.data$X,MR.data$Z)
+  pcc_iv <- pcc_IV(deco$A,deco$B,MR.data$G,
                    deco$inv_GG_square,no_IV = 1)
   #weight
   civ.global.u <- pcc_iv$u_max
@@ -296,6 +359,8 @@ boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
 
   boots.cor.u <- 2*civ.global.u - boots.u
 
+  if(is.complex(boots.cor.u)==0){boots.cor.u <- boots.u}
+
   list(boots.u = boots.u, boots.cor.u = boots.cor.u)
 }
 
@@ -303,13 +368,16 @@ boot_CIV <- function(temp_TSLS_data, n_boots = 10 ){
 
 #' @title SNP pre-processing.
 #' @description This function remove highly correlated SNPs. It also
-#' calculate MAF for each snp and delete rare snps with 0.01 MAF
+#' calculate MAF for each snp and delete rare snps with low MAF (e.g. 0.01).
 
 #' @param snp_matrix: SNP matrix with dimension n * p.
 #' @param crit_high_cor: criteria to choose highly correlated SNPs.
 #' @param maf_crit: criteria to choose rare SNPs.
-#' @return sel_snp: the selected SNPs.
+#' @return sel_snp: the new dosage matrix of selected SNPs.
 #' @return id_snp: the ids (columns) of selected SNPs in the original SNP matrix.
+#' @examples
+#' data(simulation)
+#' snp.rdc <- SNP_reduction(simulation$G)
 #' @export
 
 
@@ -349,12 +417,14 @@ SNP_reduction <- function(snp_matrix,crit_high_cor=0.8,maf_crit =0.01){
 
 
 #' @title Instrumental variable reduction.
-#' @description This function remove highly correlated IVs.
-
+#' @description This function remove highly correlated IVs. An upgraded function SNP_reduction() is suggested.
 #' @param snp_matrix: IV matrix with dimension n * p.
-#' @param crit_high_cor: criteria to choose highly correlated SNPs.
+#' @param crit_high_cor: criteria to choose highly correlated SNPs. default is 0.8 correlation.
 #' @return sel_snp: the selected IVs.
 #' @return id_snp: the ids (columns) of selected IVs in the original IV matrix.
+#' @examples
+#' data(simulation)
+#' snp.rdc <- IV_reduction(simulation$G)
 #' @export
 
 IV_reduction <- function(snp_matrix,crit_high_cor=0.8){
@@ -373,16 +443,48 @@ IV_reduction <- function(snp_matrix,crit_high_cor=0.8){
 
 }
 
-#' @title CIV_smooth with a specified lambda.
-#' @description This function finds a CIV_smooth solution of u given a lambda value.
-#' @param initial: the initial value for updating u.
-#' @param G: SNP matrix of n*p.
+#' @title CIV_smooth solution given \eqn{\lambda}. (Internal function)
+#' @description This function finds a CIV_smooth solution of u given a value of \eqn{\lambda}. This function is mostly for internal use. smooth_CIV() is suggested for users to obtain optimal solutions of CIV_smooth.
+#' @param initial: the initial point of u for updating. The CIV solution will be used as the initial point if no choice is made.
+#' @param G: SNP matrix with dimension \eqn{n \times p}.
 #' @param X: phenotype of interest.
-#' @param lambda: a given value (must be specified) for regularization parameter.
+#' @param Z: pleiotropic phenotype Z.
+#' @param GTG: \eqn{G`G}
+#' @param GTMG: \eqn{G`X(X`X)^{-1}X`G}.
+#' @param ZTG: \eqn{Z`G}
+#' @param GTZ: \eqn{G`Z}
+#' @param ZTG_ginv: general inverse of \eqn{Z`G} (ginv(\eqn{Z`G})).
+#' @param null_space: null space of matrices G`Z (null(G`Z)).
+#' @param lambda: a given value (must be specified) for regularization parameter \eqn{\lambda}.
+#' @param accuracy_par: the accuracy threshold parameter to determine if the algorithm converged to a local maximum. Default is 1e-10.
+#' @param last_conv_iters: the maximum iterations to run. Default is 2000.
 #' @param ......: default values for other tuning parameters.
 #' @return mat_u: the trace of all updated iterations of u.
-#' @return opt_solution: the converged final solution of u.
+#' @return opt_solution: the final solution of u.
+#' @return value_list: the iteration values of target function (penalized correlation).
+#' @return unstrained_val_list: the iteration values of correlation between X and Gu.
+#' @return dev_list: the iteration values of deviance between updated vector of u.
+#' @return n_iters_stage: the number of iterations before finishing updating. If this value < last_conv_iters, then the algorithm stopped at a solution of u without using up its updating quota.
+#' @return sigma_stage: the updating values of \eqn{\sigma} that are used in each iteration.
+#' @return stepsize_list: the updating values of stepsize that are used in each iteration.
+#' @examples
+#' data(simulation)
+#' G <- simulation$G
+#' X <- simulation$X
+#' Z <- simulation$Z
+#' GTG <- crossprod(G,G)
+#' M <- tcrossprod ( tcrossprod ( X , solve(crossprod(X,X) ) ), X )
+#' GTMG <- crossprod(G, crossprod(M,G))
+#' ZTG <- crossprod(Z,G)
+#' GTZ <- crossprod(G,Z)
+#' null_space <- Null( GTZ)
+#' ZTG_ginv <- ginv(ZTG)
+#' lambda <- 1
+#' smooth.lambda1 <- smooth_L0_lambda(null_space = null_space, G = G, X = X, GTG = GTG, lambda = lambda,
+#' GTMG = GTMG, ZTG = ZTG, GTZ = GTZ, ZTG_ginv = ZTG_ginv )
+#' plot(smooth.lambda1$opt_solution)  #plot the final solution u
 #' @export
+
 
 smooth_L0_lambda <- function(initial = NULL, null_space, G,X,GTG,
                              lambda, sigma_min = 0.01, sigma_up =0.5,
@@ -407,7 +509,9 @@ smooth_L0_lambda <- function(initial = NULL, null_space, G,X,GTG,
 
     else{
       if(p<n){
-        pcc_iv <- pcc_IV(A,B,G, inv_GG_square)
+        deco <- LA_decomposition(G,X,Z)
+        pcc_iv <- pcc_IV(deco$A,deco$B,G,
+                         deco$inv_GG_square,no_IV = 1)
         initial  <- as.vector(pcc_iv$u_max)
       }
 
@@ -583,29 +687,49 @@ smooth_L0_lambda <- function(initial = NULL, null_space, G,X,GTG,
 
 }
 
-#' @title CIV_smooth solution with cross-validation.
-#' @description This function first find the optimal lambda value according
-#' to projected prediction error with cross-validation. Then for a given lambda value multiple intial
+#' @title CIV_smooth solution with cross-validation.(recommended)
+#' @description This function first find the optimal value of \eqn{\lambda} according
+#' to projected prediction error with cross-validation. Then for a given \eqn{\lambda} value multiple intial
 #' points are used to explore potentially multiple modes.
 #' @param initial: the initial value for updating u.
-#' @param G: SNP matrix of n*p.
+#' @param G: SNP matrix with dimension \eqn{n \times p}.
 #' @param X: phenotype of interest.
-#' @param lambda_list: a list of values for regularization parameter lambda.
-#' @param k_folds: number of folds for cross-validation.
+#' @param Z: pleiotropic phenotype Z.
+#' @param Y: the disease outcome Y.
+#' @param lambda_list: a list of values for regularization parameter lambda. A default list will be chosen if not provided.
+#' @param k_folds: number of folds for cross-validation (to find optimum \eqn{\lambda}). default = 10.
 #' @param n_IV: the number of initial points chosen to explore potential multiple modes. The converged
-#' solutions will be screened to delete redundant solutions. So the final solutions will be less than n_IV.
+#' solutions will be screened to delete redundant solutions. So the final solutions will be less or equal to n_IV. default = 100.
+#' @param sigma_min: the minimum value of \eqn{\sigma} (corresponding to the closeast approximation of \eqn{L_0} penalty). default = 0.01.
+#' @param sigma_up: the moving down multiplier. \eqn{\sigma_{j+1} = sigma_up \times \sigma_{j}}. default = 0.5.
+#' @param stepsize: the stepsize to move solution u. default = 0.1.
+#' @param conv_iters: the maximum steps to allow updating when a converged solution is found. default =5.
+#' @param stepsize_last: When a converged solution is found with stepsize, we update this solution with a smaller stepsize to achive a more precise
+#' local maximum solution. default = 0.0001.
+#' @param last_conv_iters: the maximum iterations to run in the stage of ``refining" optimum solution. default = 2000.
 #' @param ......: default values for other tuning parameters.
-#' @return IV_mat: the final matrix of CIV instruments.
-#' @return u_mat: the final CIV solutions of u.
-#' @return G_pred_error_list: the projected prediction error.
+#' @return opt_lambda: the chosen optimum value of \eqn{\lambda} corresponding to the minimum projected prediction error (see paper).
+#' @return IV_mat: the final matrix of CIV instruments with respect to the opt_lambda. Each column is a new instrument.
+#' @return u_mat: the final CIV solutions of u with respect to the opt_lambda. Each column is a converged solution.
+#' @return G_pred_error_list: the projected prediction error according to the list values of \eqn{\lambda}.
+#' @return Pred_error_list: the prediction error according to the list values of \eqn{\lambda}.
+#' @examples
+#' data(simulation)
+#' G <- simulation$G
+#' X <- simulation$X
+#' Z <- simulation$Z
+#' Y <- simulation$Y
+#' smooth.opt <- smooth_CIV( G,X,Z,Y, k_folds = 10)
+#' plot(smooth.opt$u_mat[,1])  #plot a solution u.
 #' @export
-smooth_opt_IV <- function(lambda_list = NULL, k_folds =2,
+smooth_CIV <- function(G,X,Z,Y, lambda_list = NULL, k_folds =10,
                           sigma_min = 0.01, sigma_up =0.5,
                           stepsize=0.1, conv_iters = 5,
                           stepsize_last = 0.0001,
                           last_conv_iters = 2000,
-                          null_space, G,X,Z,Y, method_lambda ="er",
-                          n_IV = 2){
+                          method_lambda ="er",
+                          n_IV = 100){
+
 
   n <- nrow(G)
   p <- ncol(G)
@@ -729,11 +853,11 @@ smooth_opt_IV <- function(lambda_list = NULL, k_folds =2,
       IV_test <- G_test%*%u
 
       #now we caluclated penalized correlation and prediction error
-      temp_TSLS_data <- data.frame(Y_test)
-      temp_TSLS_data$G <- IV_test
-      temp_TSLS_data$X <- X_test
-      temp_TSLS_data$y <- Y_test
-      cv_tsls_fit <- TSLS_IV(temp_TSLS_data)
+      MR.data <- data.frame(Y_test)
+      MR.data$G <- IV_test
+      MR.data$X <- X_test
+      MR.data$Y <- Y_test
+      cv_tsls_fit <- TSLS_IV(MR.data)
       Pred_error_fld <- Y_test - cbind(1,X_test) %*% (cv_tsls_fit$coef)
 
       PG <- tcrossprod(IV_test,IV_test)/sum((IV_test)^2)
@@ -864,21 +988,31 @@ smooth_opt_IV <- function(lambda_list = NULL, k_folds =2,
 
 }
 
-
-#' @title select IVs according to their training prediction error (if necessary).
-#' @description This function selects IVs according to their training prediction error.(Y-X *beta)
-#' @param smooth_IV: object from smooth_opt_IV() function.
-#' @param TSLS_data: data frame containing G,X,Z,Y.
+#' @title select IVs from a smooth_IV object (experimental function).
+#' @description this function removes IVs with extreme low correlation and extreme high prediction error.
+#' This is an experimental function to check how many redundant solutions are found in smooth.opt object.
+#' @param smooth_IV: an object from smooth_CIV() function.
+#' @param MR.data: data frame containing G,X,Z,Y.
 #' @param ......: default values for other tuning parameters.
 #' @return IV_mat: the final matrix of CIV instruments.
-#' @return u_mat: the final CIV solutions of u.
+#' @return u_mat: the final CIV solutions of u. Each column is a distinct solution.
+#' @examples
+#' data(simulation)
+#' G <- simulation$G
+#' X <- simulation$X
+#' Z <- simulation$Z
+#' Y <- simulation$Y
+#' smooth.opt <- smooth_CIV( G,X,Z,Y, k_folds = 10)
+#' smooth.clean <- rm_outlier_IV(smooth.opt, simulation)
+#' dim(smooth.clean$u_mat) #check how many solutions are different. It is probability much less than 100.
 #' @export
 
-select_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
 
-  X <- TSLS_data$X
-  G <- TSLS_data$G
-  Y <- TSLS_data$Y
+rm_outlier_IV <- function(smooth_IV, MR.data, crit=0.9,sigma_min=0.01){
+
+  X <- MR.data$X
+  G <- MR.data$G
+  Y <- MR.data$Y
   p<-ncol(G)
   IV_mat <- smooth_IV$IV_mat
   u_mat <- smooth_IV$u_mat
@@ -896,95 +1030,9 @@ select_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
     )
 
 
-    temp_TSLS_data <- TSLS_data
-    temp_TSLS_data$G <- temp_IV
-    temp_tsls_fit <- TSLS_IV(temp_TSLS_data)
-    temp_Pred_error <- Y - cbind(1,X) %*% (temp_tsls_fit$coef)
-
-    PG <- tcrossprod(temp_IV,temp_IV)/sum((temp_IV)^2)
-    temp_G_pred_error <- PG %*% temp_Pred_error
-    er_list <- c(er_list,sum(temp_Pred_error^2))
-    G_er_list <- c(G_er_list, sum(temp_G_pred_error^2))
-  }
-
-  #we need to choose the columns of G according to a criteria(er_list or cor_list)
-  median_er <- median(er_list)
-  min_er <- min(er_list)
-  up_bound <-  median_er + 1*(median_er-min_er)
-  below_bound <- median_er - 1*(median_er-min_er)
-  #id_iv <- which( (er_list<up_bound)*(er_list > below_bound)==1    )
-  id_er <- which(er_list < up_bound)
-
-  median_cor <- median(cor_pen_list)
-  max_cor <- max(cor_pen_list)
-  #id_iv <- which( (er_list<up_bound)*(er_list > below_bound)==1    )
-  id_cor <- which(cor_pen_list > quantile(cor_pen_list,0.5) )
-
-  id_iv <- intersect(id_er,id_cor)
-  #id_iv <- id_cor
-
-  IV_mat <- IV_mat[,id_iv]
-  u_mat <- u_mat[,id_iv]
-  #######################################
-  #now after obtain multiple IV we eliminate the replicated ones
-  if(FALSE){
-    select_u_mat  <- u_mat[,1]
-    select_iv_mat <-IV_mat[,1]
-    select_id <- id_iv[1]
-    for(i in 2:ncol(IV_mat)){
-      if( max(abs(cor(select_iv_mat,IV_mat[,i])))<crit){
-        #print( c( dim(select_iv_mat),i) )
-        select_iv_mat <- cbind(select_iv_mat,IV_mat[,i] )
-        select_u_mat <- cbind(select_u_mat, u_mat[,i])
-        select_id <- c(select_id,id_iv[i])
-      }
-    }
-
-  }
-
-  list(IV_mat = IV_mat, u_mat = u_mat, id_iv=id_iv, er_list =er_list,
-       G_er_list = G_er_list, cor_pen_list = cor_pen_list )
-
-
-
-}
-
-
-#' @title select IVs according to their training prediction error and correlation with X (if necessary).
-#' @description #this function removes IVs with extreme low correlation and extreme high prediction error.
-#' @param smooth_IV: object from smooth_opt_IV() function.
-#' @param TSLS_data: data frame containing G,X,Z,Y.
-#' @param ......: default values for other tuning parameters.
-#' @return IV_mat: the final matrix of CIV instruments.
-#' @return u_mat: the final CIV solutions of u.
-#' @export
-
-
-rm_outlier_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
-
-  X <- TSLS_data$X
-  G <- TSLS_data$G
-  Y <- TSLS_data$Y
-  p<-ncol(G)
-  IV_mat <- smooth_IV$IV_mat
-  u_mat <- smooth_IV$u_mat
-
-  cor_pen_list <- NULL
-  er_list <- NULL
-  G_er_list <- NULL
-
-  for(j in 1:ncol(IV_mat)){
-
-    temp_u <- smooth_IV$u_mat[,j]
-    temp_IV <- IV_mat[,j]
-    cor_pen_list <- c(cor_pen_list, cor(temp_IV,X) - p*smooth_IV$opt_lambda +
-                        smooth_IV$opt_lambda *sum(exp(-temp_u^2/2/sigma_min^2))
-    )
-
-
-    temp_TSLS_data <- TSLS_data
-    temp_TSLS_data$G <- temp_IV
-    temp_tsls_fit <- TSLS_IV(temp_TSLS_data)
+    MR.data <- MR.data
+    MR.data$G <- temp_IV
+    temp_tsls_fit <- TSLS_IV(MR.data)
     temp_Pred_error <- Y - cbind(1,X) %*% (temp_tsls_fit$coef)
 
     PG <- tcrossprod(temp_IV,temp_IV)/sum((temp_IV)^2)
@@ -1009,7 +1057,7 @@ rm_outlier_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
   }
   #######################################
   #now after obtain multiple IV we eliminate the replicated ones
-  if(FALSE){
+  if(TRUE){
     select_u_mat  <- u_mat[,1]
     select_iv_mat <-IV_mat[,1]
     select_id <- id_iv[1]
@@ -1021,7 +1069,9 @@ rm_outlier_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
         select_id <- c(select_id,id_iv[i])
       }
     }
-
+   u_mat <- select_u_mat
+   IV_mat <- select_iv_mat
+   id_iv <- select_id
   }
 
   list(IV_mat = IV_mat, u_mat = u_mat, id_iv=id_iv, er_list =er_list,
@@ -1031,6 +1081,231 @@ rm_outlier_IV <- function(smooth_IV, TSLS_data, crit=0.9,sigma_min=0.01){
 
 }
 
+#' @title Two stage least square method.
+#' @description This function implement ordinary two stage least square regression and provide variance estimation (if requested).
+#' @param MR.data: data frame containing G,X,Z,Y.
+#' @param Fstats: return F-statistics or not. If multiple phenotypes (X) are used, Pillai statistics will be used instead.
+#' @param var_cal: return variance estimation or not.
+#' @return coef: the causal effect estimation \eqn{\beta}.
+#' @return var: the variance estimation of \eqn{\beta}. if var_cal=TRUE.
+#' @return stats: F-statistics (or Pillai statistics). if Fstats=TRUE.
+#' @return pvalue: the pvalue of F-statistics. if Fstats=TRUE.
+#' @examples
+#' data(simulation)
+#' TSLS_IV(simulation,Fstats=TRUE,var_cal=TRUE)
+#' @export
 
 
+TSLS_IV <- function(MR.data,Fstats=FALSE,var_cal=FALSE){
+
+
+  MR.data$Y -> Y
+
+  MR.data$X -> X
+
+  MR.data$G -> G
+
+  if(length(ncol(MR.data$X))==0)X <- matrix(MR.data$X,ncol=1)
+
+
+  p <- ncol(G)
+
+  if(sum(p)==0){p <- 1}
+
+  n <- length(Y)
+
+
+  #the method in sem package
+  #tsls_fit <- tsls(y~X, ~G, data=MR.data)
+
+  #the naive implementation
+  x_fit<- lm(X~G,data=MR.data)$fitted.values
+
+  x_fit<- lm((MR.data$X)~(MR.data$G) )$fitted.values
+
+
+  y_fit<- lm(MR.data$Y ~ x_fit)
+
+  #calculate the beta_iv
+  beta_tsls <- y_fit$coefficients
+
+  var_tsls <- 0
+
+  if(var_cal==TRUE){
+    #calcuate the asymtotic variance of this estimator
+    Pz <- G%*% solve(t(G)%*%G) %*% t(G)
+
+    xzzz_inv <- t(X)%*%G %*% solve(t(G)%*%G)
+    xPzx <- solve(t(X)%*%Pz%*%X)
+
+    tsls_fit <- tsls(Y~X, ~G, data=MR.data)
+    resid <- tsls_fit$residuals
+
+
+    current_mat <- matrix(0,p,p)
+
+    if(p>1){
+      for(i in 1:n){
+        current_mat <- current_mat + ((resid[i])^2)*G[i,]%*%t(G[i,])
+      }
+    }
+
+    else{
+      for(i in 1:n){
+        current_mat <- current_mat + ((resid[i])^2)*(G[i])^2
+      }
+
+
+    }
+
+    S <- current_mat / n
+
+    var_tsls <- n*xPzx%*%( xzzz_inv %*% S %*% t(xzzz_inv)) %*% xPzx
+  }
+
+  if(Fstats==TRUE){
+    #now give out the 1st stage F statistics (strong instrument or not) and its pvalue
+
+    if(ncol(X)==1){
+      lmfit <- lm(X~G)
+      stats <- summary(lmfit)$fstatistic[1]
+      pvalue <- (anova(lmfit)$`Pr(>F)`)[1]
+    }
+
+    else{
+
+      MVR <- manova(X~G)
+
+      #record Pillai statistics and p value, and association with y
+      stats <- summary(MVR)$stats[1,"Pillai"]
+      pvalue <- summary(MVR)$stats[1,"Pr(>F)"]
+
+    }
+
+    #coef is the coefficient estimator of y|X. var is the variance of this estimator.
+    #stat and pvalue is the stage I assiciation test result.
+    list(coef=beta_tsls,var=var_tsls,stats = stats, pvalue=pvalue)
+  }
+
+  else{
+    list(coef=beta_tsls,var=var_tsls)
+  }
+}
+
+#' @title cross-validated Allele score method.
+#' @description This function implement Allele score methods with cross-validation
+#' in the way Stephen Burgess suggested in the Allele score methods paper.
+#' @param MR.data: data frame containing G,X,Z,Y.
+#' @param n_folds: the number of folds for cross-validation.
+#' @return weights: the weights for allele score across folds. Each row is a weight vector
+#' corresponding to a specific fold.
+#' @return allele_score: The cross-validated Allele score, which would be used as the new instruments
+#' in MR analysis.
+#' @return beta_est: the causal effect estimation of \eqn{\beta}.
+#' @examples
+#' data(simulation)
+#' allele.score <- allele(simulation,n_folds=10)
+#' @export
+
+
+allele <- function(MR.data, n_folds = 10 ){
+
+  G <- MR.data$G
+  X <- MR.data$X
+  Z <- MR.data$Z
+  Y <- MR.data$Y
+
+  if(length(ncol(MR.data$X))==0)X <- matrix(MR.data$X,ncol=1)
+  n <- length(Y)
+  p <- ncol(G)
+
+  #allele_score is used to save the calculated allele scores
+  allele_score <- X
+  #weights is a matrix where each row contains weight from each folds
+  weights <- NULL
+  flds <- createFolds(c(1:n), k = n_folds, list = TRUE, returnTrain = FALSE)
+
+  for(cv_folds in 1:n_folds){
+
+    apply_index <- flds[[cv_folds]]
+    train_index <- c(1:n)[-apply_index]
+
+    if(ncol(X)==1){X_train <- as.matrix(X[train_index,1],ncol=1)
+    X_apply <- as.matrix(X[apply_index,1],ncol=1)
+    }
+    else{ X_train <- X[train_index,]   }
+
+    G_train <- G[train_index,]
+    G_apply  <- G[apply_index,]
+
+    coef_train <- lm(X_train~G_train)$coefficients
+
+    coef_train[which(is.na(coef_train))] <- 0
+
+    if(ncol(X)==1){
+      if(ncol(G)>1){
+        allele_score_apply <- G_apply%*%coef_train[-1]}
+      else{
+        allele_score_apply <- G_apply * coef_train[-1]
+      }
+      allele_score[apply_index] <- allele_score_apply
+    }
+
+
+    if(ncol(X)>1){
+      allele_score_apply <- G_apply%*%coef_train[-1,]
+      allele_score[apply_index,] <- allele_score_apply
+    }
+
+
+    weights <- rbind(weights,coef_train)
+  }
+
+  #now we use the allele score to do causal effect estimation
+  temp_TSLS_data <- MR.data
+  temp_TSLS_data$G <- allele_score
+
+  est_TSLS <- TSLS_IV(temp_TSLS_data)
+  beta_est <- est_TSLS$coef[-1]
+
+
+  list(beta_est = beta_est, weights = weights, allele_score = allele_score)
+
+
+
+}
+
+#' @title simple linear regression pvalues (internal function.)
+#' @description univaraite t-test pvalues for a regression.
+#' @param modelobject: a regression object.
+#' @return p: pvalue.
+#' @export
+lmp <- function (modelobject) {
+  if (class(modelobject) != "lm") stop("Not an object of class 'lm' ")
+  f <- summary(modelobject)$fstatistic
+  p <- pf(f[1],f[2],f[3],lower.tail=F)
+  attributes(p) <- NULL
+  return(p)
+}
+
+#' @title univariate T-test p-values.
+#' @description Given response $Y$ and a set of features $X$, this
+#' function obtains univariate T-test p-values for each of the feature for selection purpose.
+#' @param Y: response variable. \eqn{n \times 1}.
+#' @param X: the independent features.\eqn{n \times p}.
+#' @return pvalue_list: the list of Pvalues for feature selection based on univariate T-test.
+#' @examples
+#' data(simulation)
+#' p.values <- lmPvalue(simulation$X, simulation$G)
+#' @export
+lmPvalue <- function(Y,X){
+
+  pvalue_list <- NULL
+
+  for(j in 1:ncol(X)){
+    fit <- (lm(Y~X[,j]))
+    pvalue_list <- c( pvalue_list, lmp(fit) )
+  }
+  pvalue_list
+}
 

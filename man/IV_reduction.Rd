@@ -9,7 +9,7 @@ IV_reduction(snp_matrix, crit_high_cor = 0.8)
 \arguments{
 \item{snp_matrix:}{IV matrix with dimension n * p.}
 
-\item{crit_high_cor:}{criteria to choose highly correlated SNPs.}
+\item{crit_high_cor:}{criteria to choose highly correlated SNPs. default is 0.8 correlation.}
 }
 \value{
 sel_snp: the selected IVs.
@@ -17,6 +17,10 @@ sel_snp: the selected IVs.
 id_snp: the ids (columns) of selected IVs in the original IV matrix.
 }
 \description{
-This function remove highly correlated IVs.
+This function remove highly correlated IVs. An upgraded function SNP_reduction() is suggested.
+}
+\examples{
+data(simulation)
+snp.rdc <- IV_reduction(simulation$G)
 }
 

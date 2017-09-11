@@ -4,23 +4,31 @@
 \alias{cv_CIV}
 \title{cross-validated CIV.}
 \usage{
-cv_CIV(temp_TSLS_data, n_folds = 10)
+cv_CIV(MR.data, n_folds = 10)
 }
 \arguments{
-\item{temp_TSLS_data:}{a data frame containing G,X,Z,Y.}
+\item{MR.data:}{a data frame containing G,X,Z,Y.}
 
 \item{n_folds:}{number of folds for cross-validation.}
 }
 \value{
-civ.IV: cross-validated CIV instrument.
+weights: A matrix with dimension \eqn{n_folds * p}. Each row is a CIV solution \eqn{c} from a specific fold.
 
-beta_est: causal effect estimation of X on Y using civ.IV.
+civ.IV: cross-validated CIV instrument \eqn{G^{*}=Gc}.
+
+beta_est: causal effect estimation of X on Y using CIV instrument civ.IV
 }
 \description{
-This function generate a CIV using cross-validation.
+This function produce a Constrained Instrumental Variable with cross-validation.
              Specifically, for a predefined fold the CIV is calculated using
-              all samples except this fold, then the CIV solution is applied to the samples in this
-              fold to obtain CIV instrumentable variable. In this way the correlation between samples
+              all samples except this fold, then the CIV solution is applied to the samples  in this fold
+              to obtain corresponding CIV. In this way the correlation between samples
               are expected to be reduced.
+}
+\examples{
+data(simulation)
+cv.civ <- cv_CIV(simulation)
+#strong correlation between CIV solutions from different folds.
+cor(t(cv.civ$weights))
 }
 

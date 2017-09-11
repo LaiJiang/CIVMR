@@ -2,7 +2,7 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{pcc_IV}
 \alias{pcc_IV}
-\title{multiple orthogonal CIV solutions (if applicable)}
+\title{multiple orthogonal CIV solutions. (internal function)}
 \usage{
 pcc_IV(A, B, G, inv_GG_square, no_IV = ncol(G) - ncol(B))
 }
@@ -17,6 +17,13 @@ pcc_IV(A, B, G, inv_GG_square, no_IV = ncol(G) - ncol(B))
 u_max: the solution of u that would maximize the constrained correlation problem.
 }
 \description{
-This function find multiple CIV solutions that are orthogonal to each other if called. Only the first one achive the maximum correlation.
+This function find multiple CIV solutions that are orthogonal to each other. Only the first one achive the global maximum correlation.
+}
+\examples{
+data(simulation)
+#CIV linear algebra decomposition components
+civ.deco <- LA_decomposition(simulation$G,simulation$X,simulation$Z)
+#solve the CIV solution for c
+civ.mult <- pcc_IV(civ.deco$A, civ.deco$B, simulation$G, civ.deco$inv_GG_square)
 }
 

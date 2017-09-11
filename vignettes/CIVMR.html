@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<meta name="author" content="Lai Jiang" />
+
+<meta name="date" content="2017-09-11" />
+
+<title>Package CIVMR</title>
+
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; }
+code > span.dt { color: #902000; }
+code > span.dv { color: #40a070; }
+code > span.bn { color: #40a070; }
+code > span.fl { color: #40a070; }
+code > span.ch { color: #4070a0; }
+code > span.st { color: #4070a0; }
+code > span.co { color: #60a0b0; font-style: italic; }
+code > span.ot { color: #007020; }
+code > span.al { color: #ff0000; font-weight: bold; }
+code > span.fu { color: #06287e; }
+code > span.er { color: #ff0000; font-weight: bold; }
+</style>
+
+
+
+<link href="data:text/css,body%20%7B%0A%20%20background%2Dcolor%3A%20%23fff%3B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20max%2Dwidth%3A%20700px%3B%0A%20%20overflow%3A%20visible%3B%0A%20%20padding%2Dleft%3A%202em%3B%0A%20%20padding%2Dright%3A%202em%3B%0A%20%20font%2Dfamily%3A%20%22Open%20Sans%22%2C%20%22Helvetica%20Neue%22%2C%20Helvetica%2C%20Arial%2C%20sans%2Dserif%3B%0A%20%20font%2Dsize%3A%2014px%3B%0A%20%20line%2Dheight%3A%201%2E35%3B%0A%7D%0A%0A%23header%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0A%0A%23TOC%20%7B%0A%20%20clear%3A%20both%3B%0A%20%20margin%3A%200%200%2010px%2010px%3B%0A%20%20padding%3A%204px%3B%0A%20%20width%3A%20400px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20border%2Dradius%3A%205px%3B%0A%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20font%2Dsize%3A%2013px%3B%0A%20%20line%2Dheight%3A%201%2E3%3B%0A%7D%0A%20%20%23TOC%20%2Etoctitle%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%20%20font%2Dsize%3A%2015px%3B%0A%20%20%20%20margin%2Dleft%3A%205px%3B%0A%20%20%7D%0A%0A%20%20%23TOC%20ul%20%7B%0A%20%20%20%20padding%2Dleft%3A%2040px%3B%0A%20%20%20%20margin%2Dleft%3A%20%2D1%2E5em%3B%0A%20%20%20%20margin%2Dtop%3A%205px%3B%0A%20%20%20%20margin%2Dbottom%3A%205px%3B%0A%20%20%7D%0A%20%20%23TOC%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dleft%3A%20%2D2em%3B%0A%20%20%7D%0A%20%20%23TOC%20li%20%7B%0A%20%20%20%20line%2Dheight%3A%2016px%3B%0A%20%20%7D%0A%0Atable%20%7B%0A%20%20margin%3A%201em%20auto%3B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dcolor%3A%20%23DDDDDD%3B%0A%20%20border%2Dstyle%3A%20outset%3B%0A%20%20border%2Dcollapse%3A%20collapse%3B%0A%7D%0Atable%20th%20%7B%0A%20%20border%2Dwidth%3A%202px%3B%0A%20%20padding%3A%205px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%7D%0Atable%20td%20%7B%0A%20%20border%2Dwidth%3A%201px%3B%0A%20%20border%2Dstyle%3A%20inset%3B%0A%20%20line%2Dheight%3A%2018px%3B%0A%20%20padding%3A%205px%205px%3B%0A%7D%0Atable%2C%20table%20th%2C%20table%20td%20%7B%0A%20%20border%2Dleft%2Dstyle%3A%20none%3B%0A%20%20border%2Dright%2Dstyle%3A%20none%3B%0A%7D%0Atable%20thead%2C%20table%20tr%2Eeven%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Ap%20%7B%0A%20%20margin%3A%200%2E5em%200%3B%0A%7D%0A%0Ablockquote%20%7B%0A%20%20background%2Dcolor%3A%20%23f6f6f6%3B%0A%20%20padding%3A%200%2E25em%200%2E75em%3B%0A%7D%0A%0Ahr%20%7B%0A%20%20border%2Dstyle%3A%20solid%3B%0A%20%20border%3A%20none%3B%0A%20%20border%2Dtop%3A%201px%20solid%20%23777%3B%0A%20%20margin%3A%2028px%200%3B%0A%7D%0A%0Adl%20%7B%0A%20%20margin%2Dleft%3A%200%3B%0A%7D%0A%20%20dl%20dd%20%7B%0A%20%20%20%20margin%2Dbottom%3A%2013px%3B%0A%20%20%20%20margin%2Dleft%3A%2013px%3B%0A%20%20%7D%0A%20%20dl%20dt%20%7B%0A%20%20%20%20font%2Dweight%3A%20bold%3B%0A%20%20%7D%0A%0Aul%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%7D%0A%20%20ul%20li%20%7B%0A%20%20%20%20list%2Dstyle%3A%20circle%20outside%3B%0A%20%20%7D%0A%20%20ul%20ul%20%7B%0A%20%20%20%20margin%2Dbottom%3A%200%3B%0A%20%20%7D%0A%0Apre%2C%20code%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20color%3A%20%23333%3B%0A%20%20white%2Dspace%3A%20pre%2Dwrap%3B%20%20%20%20%2F%2A%20Wrap%20long%20lines%20%2A%2F%0A%7D%0Apre%20%7B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20margin%3A%205px%200px%2010px%200px%3B%0A%20%20padding%3A%2010px%3B%0A%7D%0Apre%3Anot%28%5Bclass%5D%29%20%7B%0A%20%20background%2Dcolor%3A%20%23f7f7f7%3B%0A%7D%0A%0Acode%20%7B%0A%20%20font%2Dfamily%3A%20Consolas%2C%20Monaco%2C%20%27Courier%20New%27%2C%20monospace%3B%0A%20%20font%2Dsize%3A%2085%25%3B%0A%7D%0Ap%20%3E%20code%2C%20li%20%3E%20code%20%7B%0A%20%20padding%3A%202px%200px%3B%0A%7D%0A%0Adiv%2Efigure%20%7B%0A%20%20text%2Dalign%3A%20center%3B%0A%7D%0Aimg%20%7B%0A%20%20background%2Dcolor%3A%20%23FFFFFF%3B%0A%20%20padding%3A%202px%3B%0A%20%20border%3A%201px%20solid%20%23DDDDDD%3B%0A%20%20border%2Dradius%3A%203px%3B%0A%20%20border%3A%201px%20solid%20%23CCCCCC%3B%0A%20%20margin%3A%200%205px%3B%0A%7D%0A%0Ah1%20%7B%0A%20%20margin%2Dtop%3A%200%3B%0A%20%20font%2Dsize%3A%2035px%3B%0A%20%20line%2Dheight%3A%2040px%3B%0A%7D%0A%0Ah2%20%7B%0A%20%20border%2Dbottom%3A%204px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20padding%2Dbottom%3A%202px%3B%0A%20%20font%2Dsize%3A%20145%25%3B%0A%7D%0A%0Ah3%20%7B%0A%20%20border%2Dbottom%3A%202px%20solid%20%23f7f7f7%3B%0A%20%20padding%2Dtop%3A%2010px%3B%0A%20%20font%2Dsize%3A%20120%25%3B%0A%7D%0A%0Ah4%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23f7f7f7%3B%0A%20%20margin%2Dleft%3A%208px%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Ah5%2C%20h6%20%7B%0A%20%20border%2Dbottom%3A%201px%20solid%20%23ccc%3B%0A%20%20font%2Dsize%3A%20105%25%3B%0A%7D%0A%0Aa%20%7B%0A%20%20color%3A%20%230033dd%3B%0A%20%20text%2Ddecoration%3A%20none%3B%0A%7D%0A%20%20a%3Ahover%20%7B%0A%20%20%20%20color%3A%20%236666ff%3B%20%7D%0A%20%20a%3Avisited%20%7B%0A%20%20%20%20color%3A%20%23800080%3B%20%7D%0A%20%20a%3Avisited%3Ahover%20%7B%0A%20%20%20%20color%3A%20%23BB00BB%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22http%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%20%20a%5Bhref%5E%3D%22https%3A%22%5D%20%7B%0A%20%20%20%20text%2Ddecoration%3A%20underline%3B%20%7D%0A%0A%2F%2A%20Class%20described%20in%20https%3A%2F%2Fbenjeffrey%2Ecom%2Fposts%2Fpandoc%2Dsyntax%2Dhighlighting%2Dcss%0A%20%20%20Colours%20from%20https%3A%2F%2Fgist%2Egithub%2Ecom%2Frobsimmons%2F1172277%20%2A%2F%0A%0Acode%20%3E%20span%2Ekw%20%7B%20color%3A%20%23555%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Keyword%20%2A%2F%0Acode%20%3E%20span%2Edt%20%7B%20color%3A%20%23902000%3B%20%7D%20%2F%2A%20DataType%20%2A%2F%0Acode%20%3E%20span%2Edv%20%7B%20color%3A%20%2340a070%3B%20%7D%20%2F%2A%20DecVal%20%28decimal%20values%29%20%2A%2F%0Acode%20%3E%20span%2Ebn%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20BaseN%20%2A%2F%0Acode%20%3E%20span%2Efl%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Float%20%2A%2F%0Acode%20%3E%20span%2Ech%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20Char%20%2A%2F%0Acode%20%3E%20span%2Est%20%7B%20color%3A%20%23d14%3B%20%7D%20%2F%2A%20String%20%2A%2F%0Acode%20%3E%20span%2Eco%20%7B%20color%3A%20%23888888%3B%20font%2Dstyle%3A%20italic%3B%20%7D%20%2F%2A%20Comment%20%2A%2F%0Acode%20%3E%20span%2Eot%20%7B%20color%3A%20%23007020%3B%20%7D%20%2F%2A%20OtherToken%20%2A%2F%0Acode%20%3E%20span%2Eal%20%7B%20color%3A%20%23ff0000%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20AlertToken%20%2A%2F%0Acode%20%3E%20span%2Efu%20%7B%20color%3A%20%23900%3B%20font%2Dweight%3A%20bold%3B%20%7D%20%2F%2A%20Function%20calls%20%2A%2F%20%0Acode%20%3E%20span%2Eer%20%7B%20color%3A%20%23a61717%3B%20background%2Dcolor%3A%20%23e3d2d2%3B%20%7D%20%2F%2A%20ErrorTok%20%2A%2F%0A%0A" rel="stylesheet" type="text/css" />
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Package ‘CIVMR’</h1>
+<h4 class="author"><em>Lai Jiang</em></h4>
+<h4 class="date"><em>2017-09-11</em></h4>
+
+
+
+<p>CIVMR is a package developed to carry out Mendelian Randomization (MR) analyses for individual level data with observed pleiotropy using constrained instrumental variables (CIV) and/or constrained instrumental variables with smoothed L0 penalty (CIV_smooth). It also includes various other methods, such as 2SLS, Allele scores and their variants, to assess the causal effect of a phenotype/exposure <span class="math">\(X\)</span> on an outcome <span class="math">\(Y\)</span> when pleiotropy phenotype(s) <span class="math">\(Z\)</span> are observed using genotypes <span class="math">\(G\)</span> as instruments.</p>
+<p>The rest of this vignette is structured as follows:</p>
+<ul>
+<li>The solution and motivation of CIV/CIV_smooth.</li>
+<li>Brief description of the contents of the package CIVMR.</li>
+<li>An example of MR data analysis using this package.</li>
+</ul>
+<div id="constrained-instrumental-variable-methods" class="section level2">
+<h2>1. Constrained Instrumental Variable Methods</h2>
+<p>Assume we have an individual level dataset of <span class="math">\(n\)</span> samples. Let <span class="math">\(X\)</span> be an exposure of interest (e.g. methylation levels at a specific CpG site) with dimension <span class="math">\(n \times 1\)</span>. <span class="math">\(G\)</span> is a selected <span class="math">\(n \times p\)</span> matrix containing <span class="math">\(p\)</span> genotypes (e.g. SNPs) that are associated with <span class="math">\(X\)</span>. <span class="math">\(Y\)</span> is the outcome (e.g. blood lipid levels) with dimension <span class="math">\(n \times 1\)</span>.</p>
+<p>The Constraine instrumental Variable (<strong>CIV</strong>) for MR analyses <span class="math">\(\mathbf{(G,X,Z,Y)}\)</span> is defined as <span class="math">\(\mathbf{G^*} = \mathbf{Gc}\)</span>, where <span class="math">\(\mathbf{c}\)</span> is a weight vector <span class="math">\(\mathbf{c} \in \mathbb{R}^p\)</span>, s.t.</p>
+<p><span class="math">\[  \max_{\mathbf{c \in \mathbb{R}}^p, \mathbf{v \in \mathbb{R}}^r} \mathbf{c^{\top}G^{\top}Xv} \]</span></p>
+<p>subject to conditions:</p>
+<p><span class="math">\[  \mathbf{c^{\top}G^{\top}Gc} = 1, \]</span> <span class="math">\[  \mathbf{v^{\top}X^{\top}Xv} = 1, \]</span> <span class="math">\[  \mathbf{c^{\top}G^{\top}Z} = \mathbf{0}. \]</span></p>
+<p>The new CIV is then used directly to infer causal effect of <span class="math">\(\mathbf{X}\)</span> on <span class="math">\(\mathbf{Y}\)</span> from <span class="math">\((\mathbf{G^{*}},\mathbf{X},\mathbf{Y})\)</span> using 2SLS. CIV can be embedded inside a bootstrap or cross-validation to find a sample bias-corrected CIV weight. We refer to these two methods as <strong>“CIV_boot”</strong> and <strong>“CIV_cv”</strong>.</p>
+<p>Alternatively we can also impose smoothed <span class="math">\(L_0\)</span> penalty on the weight <span class="math">\(\mathbf{c}\)</span> to obtain an approximate sparse solution of <span class="math">\(\mathbf{c}\)</span>, s.t.</p>
+<p><span class="math">\[  \max_{\mathbf{c \in \mathbb{R}}^p, \mathbf{v \in \mathbb{R}}^r} \mathbf{c^{\top}G^{\top}Xv}  - \lambda (p - \sum\limits_{j} f_{\sigma}( \mathbf{c}_j) ) \]</span></p>
+<p>subject to conditions:</p>
+<p><span class="math">\[\mathbf{c^{\top}G^{\top}Gc} \leq 1,  \]</span> <span class="math">\[\mathbf{v^{\top}X^{\top}Xv} \leq 1, \]</span> <span class="math">\[\mathbf{c^{\top}G^{\top}Z} = \mathbf{0}, \]</span> given a specific value of regularization parameter <span class="math">\(\lambda\)</span>.</p>
+<p>In our algorithm, the value of regularization parameter <span class="math">\(\lambda\)</span> is chosen to minimizes the projected prediction error <span class="math">\(||\mathbf{P_{G^{*}}(Y-X\beta_{*})}||\)</span>, where <span class="math">\(\mathbf{P_{G^{*}} = G^{*T}(G^{*T} G^{*})^{-1}G^{*}}\)</span>. <span class="math">\(\beta_{*}\)</span> is the corresponding causal effect estimation using new instruments <span class="math">\(\mathbf{G^{*}} = \mathbf{Gc}\)</span>, which is referred to as <strong>“CIV_smooth”</strong> method in this package.</p>
+<p>The motivation of <strong>CIV</strong> is to construct a relatively strong instrumental variable <span class="math">\(\mathbf{Gc}\)</span> (a linear combination of variables in <span class="math">\(\mathbf{G}\)</span>) that are uncorrelated with <span class="math">\(\mathbf{Z}\)</span>. In addition, <strong>CIV_smooth</strong> is designed to incorporate smooth L0 penalty within the same framework, while achiving approximate sparse solution of <span class="math">\(\mathbf{c}\)</span> and deliver robust MR analyses. More technical details of <strong>CIV</strong> and <strong>CIV_smooth</strong> can be found in our paper<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>.</p>
+</div>
+<div id="package-contents" class="section level2">
+<h2>2. Package Contents</h2>
+<div id="datasets" class="section level3">
+<h3>2.1 Datasets</h3>
+<p>CIVMR provides two data files: ‘sim.rda’ and ‘ADNI.rda’ for illustration of MR analysis. The first dataset is generated within the framework of simulation series I in the CIV paper. It contains 500 subjects with one phenotype (X) of interest, one pleiotropic phenotype (Z) and one outcome (Y) simulated for each subject. 9 SNPs were generated and they were associated with both X and Z. The true causal effect of X on Y is 1. This data file is simulated to serve as an example to estimate the causal effect of X on Y while accounting for potential pleiotropic effect from Z. Users can compare the performance of different MR methods on this simulation dataset since the true causal effect is known.</p>
+<p>‘ADNI.rda’ is a subset of the Alzheimer’s Disease Neuroimaging Initiative (ADNI) project<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. It contains 491 subjects, whose phenotypes (, Ptau, Ttau, Glucose levels) and Alzheimer’s status were collected. 20 SNPs associated with Amyloid beta () were selected and their dosage of the 491 subjects were recorded. The target of this data is to serve as an example of estimating the causal effect of Amyloid beta on progression of Alzheimer’s disease while accounting for potential pleiotropic effect from other phenotypes (Ptau, Ttau, Glucose levels). More details of this dataset can be found in “ADNI” session of reference manual inside package.</p>
+<p>The default format of input data is data.frame() for all functions of instrumental variable methods in CIVMR. An example of the SNP data in the ‘simulation’ file is shown as below:</p>
+<pre class="sourceCode r"><code class="sourceCode r">      <span class="kw">library</span>(CIVMR)
+      <span class="kw">data</span>(simulation)
+      G &lt;-<span class="st"> </span>simulation$G
+      <span class="kw">colnames</span>(G) &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;rs&quot;</span>, <span class="kw">seq</span>(<span class="dv">1</span>:<span class="dv">9</span>), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+      <span class="kw">rownames</span>(G) &lt;-<span class="st"> </span><span class="kw">paste</span>(<span class="st">&quot;sub&quot;</span>, <span class="kw">seq</span>(<span class="dv">1</span>:<span class="kw">nrow</span>(G)), <span class="dt">sep=</span><span class="st">&quot;&quot;</span>)
+      knitr::<span class="kw">kable</span>(G[<span class="dv">1</span>:<span class="dv">5</span>,])</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">rs1</th>
+<th align="right">rs2</th>
+<th align="right">rs3</th>
+<th align="right">rs4</th>
+<th align="right">rs5</th>
+<th align="right">rs6</th>
+<th align="right">rs7</th>
+<th align="right">rs8</th>
+<th align="right">rs9</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">sub1</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+<tr class="even">
+<td align="left">sub2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">sub3</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">0</td>
+<td align="right">0</td>
+<td align="right">2</td>
+</tr>
+<tr class="even">
+<td align="left">sub4</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">0</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">0</td>
+</tr>
+<tr class="odd">
+<td align="left">sub5</td>
+<td align="right">0</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">2</td>
+<td align="right">1</td>
+<td align="right">1</td>
+<td align="right">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="mr-methods" class="section level3">
+<h3>2.2 MR Methods</h3>
+<p>CIVMR contains functions to implement several instrumental variable methods, including CIV_boot, CIV_cv, CIV_smooth, 2SLS and Allele scores. Given pleiotropic phenotypes <span class="math">\(Z\)</span>, CIV/CIV_smooth methods construct new instruments to adjust causal effect estimation automatically within the algorithm; while Allele score method and 2SLS method need extra instructions to account for pleiotropic <span class="math">\(Z\)</span>.</p>
+<p>There are two different ways to account for <span class="math">\(Z\)</span> in 2SLS and Allele score method. The first method is to replace <span class="math">\(G\)</span> with residuals after regressing each of these genetic variants on <span class="math">\(Z\)</span>. This is known as “adjusting” according to <span class="math">\(Z\)</span>. The second way is to apply multiple linear regression of <span class="math">\({Y}\)</span> on <span class="math">\({\hat{X}}\)</span> and <span class="math">\({\hat{Z}}\)</span> jointly, where <span class="math">\({\hat{X}}\)</span> and <span class="math">\({\hat{Z}}\)</span> are the predicted phenotypes using <span class="math">\({G}\)</span> (or corresponding Allele score) as the instruments. This is known as “multiple” MR analyses with respect to <span class="math">\(Z\)</span>. The functions in CIVMR implementing instrumental variable methods are listed here.</p>
+<ul>
+<li>CIV(): Constrained instrumental variable method.</li>
+<li>cv_CIV(): Cross-validated Constrained instrumental variable method.</li>
+<li>boot_CIV(): Bootstrap corrected constrained instrumental variable method.</li>
+<li>smooth_CIV(): Constrained instrumental variable method with smooth L0 penalty.</li>
+<li>TSLS_IV(): Two stage least square regression method.</li>
+<li>allele(): Cross-validated Allele score method.</li>
+</ul>
+<p>More details of these functions can be found in the reference manual. Technical details of CIV and CIV_smooth can be found in the CIV paper.</p>
+</div>
+</div>
+<div id="example" class="section level2">
+<h2>3. Example</h2>
+<p>Finally, we show an example of using this package to conduct MR analysis on real data analysis. First we load the ADNI data and evaluate the <span class="math">\(G-X\)</span> associations. The pvalues of univariate T-test for all SNPs in <span class="math">\(G\)</span> with respect to Amyloid <span class="math">\(\beta\)</span> (X) is shown in the figure:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(CIVMR)
+<span class="kw">data</span>(<span class="dt">list=</span>ADNI)
+list_mat &lt;-<span class="st"> </span><span class="ot">NULL</span>
+list_mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(list_mat, <span class="kw">lmPvalue</span>(ADNI$X,ADNI$G) )
+list_mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(list_mat, <span class="kw">lmPvalue</span>(ADNI$Z[,<span class="dv">1</span>],ADNI$G) )
+list_mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(list_mat, <span class="kw">lmPvalue</span>(ADNI$Z[,<span class="dv">2</span>],ADNI$G) )
+list_mat &lt;-<span class="st"> </span><span class="kw">rbind</span>(list_mat, <span class="kw">lmPvalue</span>(ADNI$Z[,<span class="dv">3</span>],ADNI$G) )
+list_mat &lt;-<span class="st"> </span><span class="kw">log</span>(list_mat)
+
+<span class="kw">plot</span>(list_mat[<span class="dv">1</span>,],<span class="dt">col=</span><span class="st">&quot;red&quot;</span>, <span class="dt">ylab =</span><span class="st">&quot;log-Pvalue&quot;</span>,  <span class="dt">pch =</span><span class="dv">20</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="dv">0</span>,<span class="kw">min</span>(list_mat)),
+     <span class="dt">xlab=</span><span class="st">&quot;20 SNPs associated with Amyloid beta 1-42 in previous studies&quot;</span>)
+<span class="kw">text</span>(<span class="dv">5</span>, -<span class="dv">20</span>, <span class="st">&quot;Amyloid beta&quot;</span> ,<span class="dt">col=</span><span class="st">&quot;red&quot;</span> )
+<span class="kw">text</span>(<span class="dv">5</span>, -<span class="dv">30</span>, <span class="st">&quot;T-Tau&quot;</span> ,<span class="dt">col=</span><span class="st">&quot;blue&quot;</span> )
+<span class="kw">text</span>(<span class="dv">5</span>, -<span class="dv">40</span>, <span class="st">&quot;P-Tau&quot;</span> ,<span class="dt">col=</span><span class="st">&quot;black&quot;</span> )
+<span class="kw">text</span>(<span class="dv">5</span>, -<span class="dv">50</span>, <span class="st">&quot;FDG: SUVR_global&quot;</span> ,<span class="dt">col=</span><span class="st">&quot;green&quot;</span> )
+<span class="kw">points</span>(list_mat[<span class="dv">2</span>,], <span class="dt">col=</span><span class="st">&quot;blue&quot;</span>, <span class="dt">pch =</span><span class="dv">20</span> )
+<span class="kw">points</span>(list_mat[<span class="dv">3</span>,], <span class="dt">col=</span><span class="st">&quot;black&quot;</span>, <span class="dt">pch =</span><span class="dv">20</span>)
+<span class="kw">points</span>(list_mat[<span class="dv">4</span>,], <span class="dt">col=</span><span class="st">&quot;green&quot;</span>, <span class="dt">pch =</span><span class="dv">20</span>)
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">log</span>(<span class="fl">0.05</span>))
+<span class="kw">abline</span>(<span class="dt">h=</span><span class="kw">log</span>(<span class="dv">5</span>*<span class="dv">10</span>^(-<span class="dv">8</span>)))</code></pre>
+<p><img src="data:image/png;base64,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" title alt width="\textwidth" style="display: block; margin: auto;" /></p>
+<p>This Figure shows the association test result between the 4 phenotypes of interest and 20 selected SNPs. The X-axis corresponds to the 20 selected SNPs, the y-axis shows the log-pvalues of univariate t-test for each of these SNPs. The different colors denote the association with different phenotypes. The two horizental line corresponds to the threshold 0.05 and <span class="math">\(5 \times 10^{-8}\)</span>.</p>
+<p>It can bee seen that most of the 20 SNPs are significantly associated with Amyloid beta under threshold 0.05, this is expected since they are chosen because of their strong associations in previous studies. However, we can also see some of these SNPs are also strongly associated with Ptau/Ttau. This raises questions about pleiotropy, and also the appropriateness of using these SNPs as valid instruments <span class="math">\(G\)</span> to infer causal effect of Amyloid beta (<span class="math">\(X\)</span>) on AD progression (<span class="math">\(Y\)</span>). To assess the validity of using these SNPs as instruments, we run the Sargan test:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(AER)
+fm &lt;-<span class="st"> </span><span class="kw">ivreg</span>(Y ~<span class="st"> </span>X |<span class="st"> </span>G, <span class="dt">data =</span> ADNI)
+<span class="kw">summary</span>(fm, <span class="dt">vcov =</span> sandwich, <span class="dt">df =</span> <span class="ot">Inf</span>, <span class="dt">diagnostics =</span> <span class="ot">TRUE</span>)
+
+##Call:
+##ivreg(formula = Y ~ X | G, data = ADNI)
+
+##Residuals:
+##    Min      1Q  Median      3Q     Max 
+##-0.9314 -0.4743  0.1744  0.3129  0.7423 
+
+##Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+##(Intercept) -1.513e-17  1.958e-02    0.00        1    
+##X           -2.501e-03  5.777e-04   -4.33 1.49e-05 ***
+
+##Diagnostic tests:
+##                 df1 df2 statistic p-value    
+##Weak instruments  20 470    17.375  &lt;2e-16 ***
+##Wu-Hausman         1 488     0.001   0.976    
+##Sargan            19  NA    23.312   0.224    
+##---
+##Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+##Residual standard error: 0.4347 on Inf degrees of freedom
+##Multiple R-Squared: 0.09217,  Adjusted R-squared: 0.09031 
+##Wald test: 18.75 on 1 DF,  p-value: 1.494e-05 </code></pre>
+<p>The Sargan test gives Pvalue = <strong>0.224</strong>, it is not significant to reject the null hypothesis that <span class="math">\(G\)</span> are valid instruments for Mendelian randomization for Amyloid beta (<span class="math">\(X\)</span>) on AD progression (<span class="math">\({Y}\)</span>). However, this does not rule out the pleiotropy effect since all 20 SNPs are also associated with Ptau and Ttau. Here, we conduct MR analysis using instrumental variable methods within CIVMR to account for potential pleiotropy:</p>
+<pre class="sourceCode r"><code class="sourceCode r">G &lt;-<span class="st"> </span><span class="kw">lm</span>(G~Z,<span class="dt">data=</span>ADNI)$residuals
+X &lt;-<span class="st"> </span><span class="kw">lm</span>(X~Z,<span class="dt">data=</span>ADNI)$residuals
+Y &lt;-<span class="st"> </span><span class="kw">lm</span>(Y~Z,<span class="dt">data=</span>ADNI)$residuals
+ADNI.adj &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">G=</span>G,<span class="dt">X=</span>X,<span class="dt">Y=</span>Y)
+
+ADNI.mul &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">G=</span>ADNI$G, <span class="dt">X=</span><span class="kw">cbind</span>(ADNI$X,ADNI$Z),<span class="dt">Y=</span>ADNI$Y)
+
+<span class="co">#2SLS method (naive)</span>
+tsls.naive &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(ADNI, <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)
+<span class="co">#2SLS method (adjusted)</span>
+tsls.adj &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(ADNI.adj, <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)
+<span class="co">#2SLS method (multiple regression)</span>
+ADNI.mul &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">G=</span>ADNI$G, <span class="dt">X=</span><span class="kw">cbind</span>(ADNI$X,ADNI$Z),<span class="dt">Y=</span>ADNI$Y)
+tsls.mul &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(ADNI.mul, <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)</code></pre>
+<p>First we run two-stage least square regression in three ways to account for <span class="math">\(Z\)</span>: (1) naive way: do nothing; (2) Adjust <span class="math">\(G,X,Y\)</span> according to <span class="math">\(Z\)</span> first; (3) multiple regression for using <span class="math">\((X,Z)\)</span> as a combined phenotype.</p>
+<p>Then we can implement allele score method in two ways: (1) naive Allele score method with cross-validated weights; (2) adjust for <span class="math">\(Z\)</span> before running allele score method:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#1. naive allele score method.</span>
+allele.est &lt;-<span class="st"> </span><span class="kw">allele</span>(ADNI)
+
+<span class="co">#2. allele score method while adjusting for pleiotropic phenotypes Z</span>
+allele.adj &lt;-<span class="st"> </span><span class="kw">allele</span>(ADNI.adj)</code></pre>
+<p>Then we implement Constrained instrumental variable (CIV) methods. We first remove the highly correlated SNPs with a certain criteria (cor&gt;0.99) to avoid singularity of CIV algorithm. The function CIV() is then applied to obtain CIV instrument, which will be used to infer causal effect of <span class="math">\(X\)</span> on <span class="math">\(Y\)</span> with TSLS_IV(). Two variants of CIV methods: CIV_CV (CIV with cross-validation) and CIV_boot (bootstrap corrected CIV) are also available with function cv_CIV() and boot_CIV():</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#this step is not mandatory</span>
+sel.G &lt;-<span class="st"> </span><span class="kw">IV_reduction</span>(ADNI$G, <span class="dt">crit_high_cor =</span> <span class="fl">0.9</span>)$sel_snp
+<span class="co">#then calculate the CIV instrument</span>
+civ.G &lt;-<span class="st"> </span><span class="kw">CIV</span>(<span class="kw">list</span>(<span class="dt">G=</span>sel.G,<span class="dt">X=</span>ADNI$X,<span class="dt">Z=</span>ADNI$Z,<span class="dt">Y=</span>ADNI$Y) )$CIV
+<span class="co">#then run the TSLS estimation method</span>
+civ.est &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(<span class="kw">list</span>(<span class="dt">G=</span>civ.G, <span class="dt">X =</span> ADNI$X, <span class="dt">Y=</span>ADNI$Y, <span class="dt">y=</span>ADNI$Y), <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)
+
+<span class="co">#2. then the bootstrapped CIV instrument</span>
+civ.boot.G &lt;-<span class="st"> </span>sel.G %*%<span class="st"> </span>(<span class="kw">boot_CIV</span>(<span class="kw">list</span>(<span class="dt">G=</span>sel.G,<span class="dt">X=</span>ADNI$X,<span class="dt">Z=</span>ADNI$Z,<span class="dt">Y=</span>ADNI$Y) )$boots.cor.u)
+<span class="co">#civ.boot estimation.</span>
+civ.boot.est &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(<span class="kw">list</span>(<span class="dt">G=</span> civ.boot.G, <span class="dt">X =</span> ADNI$X, <span class="dt">Y=</span>ADNI$Y, <span class="dt">y=</span>ADNI$Y), <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)
+
+<span class="co">#3. then the croos-validated CIV instrument.</span>
+civ.cv.G &lt;-<span class="st"> </span><span class="kw">cv_CIV</span>(<span class="kw">list</span>(<span class="dt">G=</span>sel.G,<span class="dt">X=</span>ADNI$X,<span class="dt">Z=</span>ADNI$Z,<span class="dt">Y=</span>ADNI$Y))</code></pre>
+<p>At last we implement CIV_smooth() algorithm. Note that some of the CIV_smooth solutions are only slightly different from each other, which is expected since the algorithm converges to limited number of local maximum solutions even starting from multiple initial points. We then extract distinct solutions by removing the highly correlated/repeated IVs (keep representaives).</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="co">#Find CIV_smooth solution.</span>
+civ.smooth &lt;-<span class="st"> </span><span class="kw">smooth_CIV</span>(ADNI$G,ADNI$X,ADNI$Z,ADNI$Y)
+
+<span class="co">#this step is not mandatory</span>
+civ.iv &lt;-<span class="st"> </span><span class="kw">IV_reduction</span>(civ.smooth$IV_mat, <span class="dt">crit_high_cor =</span> <span class="fl">0.9</span>)
+
+<span class="co">#now we obtain the causal effect estimation.</span>
+civ.smooth.est &lt;-<span class="st"> </span><span class="kw">TSLS_IV</span>(<span class="kw">list</span>(<span class="dt">G=</span>civ.iv$sel_snp, <span class="dt">X =</span> ADNI$X, <span class="dt">Y=</span>ADNI$Y, <span class="dt">y=</span>ADNI$Y), <span class="dt">Fstats=</span><span class="ot">TRUE</span>, <span class="dt">var_cal=</span><span class="ot">TRUE</span>)</code></pre>
+<p>There are only two distinct solutions/weights been found from smooth_CIV(). The figure of these two vectors of weight are draw here:</p>
+<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">plot</span>(civ.smooth$u_mat[,civ.iv$id_snp[<span class="dv">1</span>]],<span class="dt">xlab=</span><span class="st">&quot;Solution 1&quot;</span>,<span class="dt">ylab=</span><span class="st">&quot;weights&quot;</span>)
+<span class="kw">plot</span>(civ.smooth$u_mat[,civ.iv$id_snp[<span class="dv">2</span>]],<span class="dt">xlab=</span><span class="st">&quot;Solution 2&quot;</span>,<span class="dt">ylab=</span><span class="st">&quot;weights&quot;</span>)</code></pre>
+<p><img src="data:image/png;base64,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" /><img src="data:image/png;base64,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" /></p>
+<p>The consolidated causal effect estimation of all instrumental variable methods from CIVMR are shown in the table as follows:</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left"></th>
+<th align="right">2SLS.naive</th>
+<th align="right">2SLS.adj</th>
+<th align="right">2SLS.mul</th>
+<th align="right">Allele.naive</th>
+<th align="right">Allele.adj</th>
+<th align="right">CIV</th>
+<th align="right">CIV_boot</th>
+<th align="right">CIV_cv</th>
+<th align="right">CIV_smooth</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">causal effect estimation</td>
+<td align="right">-0.0025011</td>
+<td align="right">-0.0015486</td>
+<td align="right">-0.0009702</td>
+<td align="right">-0.0024176</td>
+<td align="right">-0.0016309</td>
+<td align="right">-0.0025107</td>
+<td align="right">-0.0011969</td>
+<td align="right">-0.0013499</td>
+<td align="right">-0.0020398</td>
+</tr>
+<tr class="even">
+<td align="left">variance estimation</td>
+<td align="right">0.0000003</td>
+<td align="right">0.0000006</td>
+<td align="right">0.0000022</td>
+<td align="right">NA</td>
+<td align="right">NA</td>
+<td align="right">0.0000013</td>
+<td align="right">0.0000014</td>
+<td align="right">NA</td>
+<td align="right">0.0000028</td>
+</tr>
+</tbody>
+</table>
+<p>Note that the variance estimation for CIV_cv and Allele score does not exist because they all rely on the cross-validation. The variance estimation for CIV, CIV_boot and CIV_smooth only captures the variance of the causal effect in the second stage regression and does not include the variance of the instrumental variable itself. Users may want to use the bootstrapped technique to obtain more accurate variance estimation, especially for CIV_smooth.</p>
+</div>
+<div class="footnotes">
+<hr />
+<ol>
+<li id="fn1"><p>“Constrained Instruments and its Application to Mendelian Randomization with Pleiotropy”<a href="#fnref1">↩</a></p></li>
+<li id="fn2"><p>Mueller, Susanne G., et al. “Ways toward an early diagnosis in Alzheimer’s disease: the Alzheimer’s Disease Neuroimaging Initiative (ADNI).” Alzheimer’s &amp; Dementia 1.1 (2005): 55-66.<a href="#fnref2">↩</a></p></li>
+</ol>
+</div>
+
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -2,23 +2,34 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{rm_outlier_IV}
 \alias{rm_outlier_IV}
-\title{select IVs according to their training prediction error and correlation with X (if necessary).}
+\title{select IVs from a smooth_IV object (experimental function).}
 \usage{
-rm_outlier_IV(smooth_IV, TSLS_data, crit = 0.9, sigma_min = 0.01)
+rm_outlier_IV(smooth_IV, MR.data, crit = 0.9, sigma_min = 0.01)
 }
 \arguments{
-\item{smooth_IV:}{object from smooth_opt_IV() function.}
+\item{smooth_IV:}{an object from smooth_CIV() function.}
 
-\item{TSLS_data:}{data frame containing G,X,Z,Y.}
+\item{MR.data:}{data frame containing G,X,Z,Y.}
 
 \item{......:}{default values for other tuning parameters.}
 }
 \value{
 IV_mat: the final matrix of CIV instruments.
 
-u_mat: the final CIV solutions of u.
+u_mat: the final CIV solutions of u. Each column is a distinct solution.
 }
 \description{
-#this function removes IVs with extreme low correlation and extreme high prediction error.
+this function removes IVs with extreme low correlation and extreme high prediction error.
+This is an experimental function to check how many redundant solutions are found in smooth.opt object.
+}
+\examples{
+data(simulation)
+G <- simulation$G
+X <- simulation$X
+Z <- simulation$Z
+Y <- simulation$Y
+smooth.opt <- smooth_CIV( G,X,Z,Y, k_folds = 10)
+smooth.clean <- rm_outlier_IV(smooth.opt, simulation)
+dim(smooth.clean$u_mat) #check how many solutions are different. It is probability much less than 100.
 }
 

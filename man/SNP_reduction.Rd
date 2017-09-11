@@ -14,12 +14,16 @@ SNP_reduction(snp_matrix, crit_high_cor = 0.8, maf_crit = 0.01)
 \item{maf_crit:}{criteria to choose rare SNPs.}
 }
 \value{
-sel_snp: the selected SNPs.
+sel_snp: the new dosage matrix of selected SNPs.
 
 id_snp: the ids (columns) of selected SNPs in the original SNP matrix.
 }
 \description{
 This function remove highly correlated SNPs. It also
-calculate MAF for each snp and delete rare snps with 0.01 MAF
+calculate MAF for each snp and delete rare snps with low MAF (e.g. 0.01).
+}
+\examples{
+data(simulation)
+snp.rdc <- SNP_reduction(simulation$G)
 }
 

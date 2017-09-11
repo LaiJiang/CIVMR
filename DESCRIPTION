@@ -1,9 +1,8 @@
 Package: CIVMR
 Title: Constrained Instrumental Variables in Mendelian Randomization with Pleiotropy
-Version: 0.0.0.9000
+Version: 0.0.1
 Authors@R: person("Lai", "Jiang", email = "jianglai1987@gmail.com", role = c("aut", "cre"))
-Description: In Mendelian randomization (MR), genetic variants are used to
-    construct instrumental variables that then enable inference about the causal
+Description: In Mendelian randomization (MR), genetic variants are used to construct instrumental variables that then enable inference about the causal
     relationship between a phenotype of interest and a response or disease outcome.
     However, valid MR inference requires several assumptions, including the
     assumption that the genetic variants only influence the response through the
@@ -20,18 +19,23 @@ Description: In Mendelian randomization (MR), genetic variants are used to
     instrumental variable. We also provide details of the features of many existing
     methods, together with a comparison of their performance in a large series of
     simulations. CIV performs robustly across many different pleiotropic violations
-    of the MR assumptions
+    of the MR assumptions.
 Depends:
     R (>= 3.0.0)
-Imports:
+Depends:
     PMA,
     plyr,
     glmnet,
     Matrix,
     foreach,
     caret,
-    ggplot2
+    ggplot2,
+    sem,
+    MASS
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
+Suggests: knitr,
+    rmarkdown
+VignetteBuilder: knitr

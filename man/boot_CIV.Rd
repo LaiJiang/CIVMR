@@ -2,23 +2,29 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{boot_CIV}
 \alias{boot_CIV}
-\title{bootstrapped CIV.}
+\title{bootstrapped CIV (recommended).}
 \usage{
-boot_CIV(temp_TSLS_data, n_boots = 10)
+boot_CIV(MR.data, n_boots = 10)
 }
 \arguments{
-\item{temp_TSLS_data:}{a data frame containing G,X,Z,Y.}
+\item{MR.data:}{a data frame containing G,X,Z,Y.}
 
 \item{n_boots:}{number of bootstrap samples.}
 }
 \value{
 boots.u: bootstrapped CIV solution u (without correction).
 
-boots.cor.u: bootstrap corrected solution of u.
+boots.cor.u: bootstrap corrected solution of u. (suggested)
 }
 \description{
 This function generate a bootstrapped CIV w/wo correction.
              Specifically, for a bootstrap sample we can generate civ solution u. The boostrap corrected
              solution u is obtained as the global solution u - ( bootrapped average u - global u).
+}
+\examples{
+data(simulation)
+boot.civ <- boot_CIV(simulation)
+#plot the bootstrap corrected solution u.
+plot(boot.civ$boots.cor.u)
 }
 

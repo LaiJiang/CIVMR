@@ -2,7 +2,7 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{LA_decomposition}
 \alias{LA_decomposition}
-\title{linear algebra decompositions for CIV}
+\title{linear algebra decompositions for CIV. (internal function.)}
 \usage{
 LA_decomposition(G, X, Z)
 }
@@ -18,6 +18,10 @@ A list of matrices which will be called by solv_pcc() and pcc_IV().
 }
 \description{
 This function implements linear algebra steps to acquire necessary matrices for CIV construction.
+}
+\examples{
+data(simulation)
+LA_decomposition(simulation$G,simulation$X,simulation$Z)
 }
 \keyword{Cholesky}
 \keyword{decomposition}

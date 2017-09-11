@@ -2,7 +2,7 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{solve_pcc}
 \alias{solve_pcc}
-\title{Find a unique solution of CIV.}
+\title{Find a unique solution of CIV (internal use).}
 \usage{
 solve_pcc(A, B)
 }
@@ -18,6 +18,15 @@ max_value: the maximized correlation value.
 }
 \description{
 This function find a unique solutin to the constrained instrument problem given matrix A and B.
+}
+\examples{
+data(simulation)
+#CIV linear algebra decomposition components
+civ.deco <- LA_decomposition(simulation$G,simulation$X,simulation$Z)
+#solve the CIV solution \\eqn{u}
+civ.c <- solve_pcc(civ.deco$A, civ.deco$B)
+#plot the weight c
+plot(civ.c$c)
 }
 \keyword{Cholesky}
 \keyword{decomposition}

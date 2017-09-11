@@ -2,7 +2,7 @@
 % Please edit documentation in R/CIVMR_function.R
 \name{smooth_L0_lambda}
 \alias{smooth_L0_lambda}
-\title{CIV_smooth with a specified lambda.}
+\title{CIV_smooth solution given \eqn{\lambda}. (Internal function)}
 \usage{
 smooth_L0_lambda(initial = NULL, null_space, G, X, GTG, lambda,
   sigma_min = 0.01, sigma_up = 0.5, stepsize = 0.1, conv_iters = 5,
@@ -10,22 +10,69 @@ smooth_L0_lambda(initial = NULL, null_space, G, X, GTG, lambda,
   accuracy_par = 1e-10)
 }
 \arguments{
-\item{initial:}{the initial value for updating u.}
+\item{initial:}{the initial point of u for updating. The CIV solution will be used as the initial point if no choice is made.}
 
-\item{G:}{SNP matrix of n*p.}
+\item{G:}{SNP matrix with dimension \eqn{n \times p}.}
 
 \item{X:}{phenotype of interest.}
 
-\item{lambda:}{a given value (must be specified) for regularization parameter.}
+\item{Z:}{pleiotropic phenotype Z.}
+
+\item{GTG:}{\eqn{G`G}}
+
+\item{GTMG:}{\eqn{G`X(X`X)^{-1}X`G}.}
+
+\item{ZTG:}{\eqn{Z`G}}
+
+\item{GTZ:}{\eqn{G`Z}}
+
+\item{ZTG_ginv:}{general inverse of \eqn{Z`G} (ginv(\eqn{Z`G})).}
+
+\item{null_space:}{null space of matrices G`Z (null(G`Z)).}
+
+\item{lambda:}{a given value (must be specified) for regularization parameter \eqn{\lambda}.}
+
+\item{accuracy_par:}{the accuracy threshold parameter to determine if the algorithm converged to a local maximum. Default is 1e-10.}
+
+\item{last_conv_iters:}{the maximum iterations to run. Default is 2000.}
 
 \item{......:}{default values for other tuning parameters.}
 }
 \value{
 mat_u: the trace of all updated iterations of u.
 
-opt_solution: the converged final solution of u.
+opt_solution: the final solution of u.
+
+value_list: the iteration values of target function (penalized correlation).
+
+unstrained_val_list: the iteration values of correlation between X and Gu.
+
+dev_list: the iteration values of deviance between updated vector of u.
+
+n_iters_stage: the number of iterations before finishing updating. If this value < last_conv_iters, then the algorithm stopped at a solution of u without using up its updating quota.
+
+sigma_stage: the updating values of \eqn{\sigma} that are used in each iteration.
+
+stepsize_list: the updating values of stepsize that are used in each iteration.
 }
 \description{
-This function finds a CIV_smooth solution of u given a lambda value.
+This function finds a CIV_smooth solution of u given a value of \eqn{\lambda}. This function is mostly for internal use. smooth_CIV() is suggested for users to obtain optimal solutions of CIV_smooth.
+}
+\examples{
+data(simulation)
+G <- simulation$G
+X <- simulation$X
+Z <- simulation$Z
+GTG <- crossprod(G,G)
+M <- tcrossprod ( tcrossprod ( X , solve(crossprod(X,X) ) ), X )
+GTMG <- crossprod(G, crossprod(M,G))
+ZTG <- crossprod(Z,G)
+GTZ <- crossprod(G,Z)
+null_space <- Null( GTZ)
+ZTG_ginv <- ginv(ZTG)
+lambda <- 1
+smooth.lambda1 <- smooth_L0_lambda(null_space = null_space, G = G, X = X, GTG = GTG, lambda = lambda,
+GTMG = GTMG, ZTG = ZTG, GTZ = GTZ, ZTG_ginv = ZTG_ginv )
+plot(smooth.lambda1$opt_solution)  #plot the final solution u
 }
 
