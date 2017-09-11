@@ -10,8 +10,7 @@ Two datasets are included: simulation and ADNI. A detailed walk-through are prov
  
 Open an R session:
  
-library(devtools)
-install_github("LaiJiang/CIVMR")
+library(devtools) ; install_github("LaiJiang/CIVMR")
 
 # Developer
  
