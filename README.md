@@ -4,7 +4,7 @@ In this package we encode Constrained Instrumental Variable methods, including c
 
 # Code Example
  
-Two datasets are included: simulation and ADNI. A detailed walk-through are provided in the vignette to show an example of MR analysis using the functions in CIVMR.
+Two datasets are included: simulation and ADNI. A detailed walk-through are provided in the vignette (CIVMR/vignette/CIVMR.pdf) to show an example of MR analysis using the functions in CIVMR.
 
 # Installation
  
